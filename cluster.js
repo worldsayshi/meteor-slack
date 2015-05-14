@@ -1,7 +1,14 @@
 
 var enableClustering = true;
 
-if(enableClustering){
+if(enableClustering && Meteor.isServer){
+
+  Meteor.methods({
+    "searchPackages": function(searchText) {
+      return ["a list of packages"];
+    }
+  });
+
   // Connect to the cluster with a MongoDB URL. Better if it's a replica set
   var connectOptions;
   // 10.47.12.42  // 127.0.0.1
@@ -23,4 +30,26 @@ if(enableClustering){
   // Discover a DDP connection
   // > This is available on both the client and the server
   //Cluster.discoverConnection("myMeteorService");
+
+
+  Cluster.allowPublicAccess("web");
+  //var searchConn = Cluster.discoverConnection("search");
+  
+/*
+  var packagesFromMeteorHacks = searchConn.call("searchPackages", "meteorhacks");
+
+  searchConn.call("searchPackages", "meteorhacks", function(err, packages) {
+    if(err) throw err;
+    console.log("here is list of", packages);
+  });*/
+}
+
+if(Meteor.isClient){
+  console.log( "Trying stuff" );
+  var searchConn = Cluster.discoverConnection("web");
+  console.log( "Trying moar" );
+  searchConn.call("searchPackages", "meteorhacks", function(err, packages) {
+    if(err) throw err;
+    console.log("here is list of", packages);
+  });
 }
